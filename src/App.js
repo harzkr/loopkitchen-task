@@ -9,6 +9,7 @@ import Task from "./project";
 
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
+import { TextField } from "@mui/material";
 
 const style = {
   position: "absolute",
@@ -27,9 +28,33 @@ function App() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  const [name, setName] = React.useState("");
+
+  const [tasksList, setTasksList] = React.useState([]);
+
+  const handleTaskName = (e) => {
+    setName(e.target.value);
+  };
+
   const addTask = () => {
     handleOpen();
   };
+
+  const saveTask = () => {
+    localStorage.setItem(`task-${name}`, 0);
+    setName("");
+    handleClose();
+  };
+
+  const retrieveTasks = () => {
+    const keys = Object.keys(localStorage);
+    const tasks = keys.filter((key) => key.includes("task-"));
+    setTasksList(tasks);
+  }
+
+  React.useEffect(() => {
+    retrieveTasks();
+  },[])
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -40,12 +65,13 @@ function App() {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Text in a modal
-          </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-          </Typography>
+          <TextField
+            onChange={handleTaskName}
+            id="outlined-basic"
+            label="Name of the task"
+            variant="outlined"
+          />
+          <Button onClick={() => saveTask()}>Save</Button>
         </Box>
       </Modal>
       <AppBar position="static">
@@ -75,7 +101,9 @@ function App() {
           width: "100vh",
         }}
       >
-        <Task addTask={addTask} />
+        {tasksList.map((task) => (
+          <Task key={task} taskName={task} addTask={addTask} />
+        ))}
       </div>
     </Box>
   );
